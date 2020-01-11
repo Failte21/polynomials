@@ -1,6 +1,5 @@
 module Polynomial
-    ( mult
-    , multP
+    ( multP
     )
 where
 
@@ -8,21 +7,34 @@ import           Data.List                     as List
 
 type Polynomial = [Int]
 
-mult :: Polynomial -> Int -> Polynomial
-mult poly value = List.map (* value) poly
+addPAux :: Polynomial -> Polynomial -> Polynomial -> Polynomial
+addPAux poly1     []        acc = acc ++ poly1
+addPAux []        poly2     acc = acc ++ poly2
+addPAux (h1 : t1) (h2 : t2) acc = addPAux t1 t2 acc ++ [h1 + h2]
 
-multPAux :: Polynomial -> Polynomial -> Polynomial
-multPAux []        p2        = p2
-multPAux p1        []        = p1
-multPAux (h1 : t1) (h2 : t2) = (h1 * h2) : multPAux t1 t2
+addP :: Polynomial -> Polynomial -> Polynomial
+addP poly1 poly2 = addPAux poly1 poly2 []
+
+enumerateAux :: [Int] -> [(Int, Int)] -> Int -> [(Int, Int)]
+enumerateAux []      acc _ = acc
+enumerateAux (h : t) acc i = enumerateAux t (acc ++ [(h, i)]) (i + 1)
+
+enumerate :: [Int] -> [(Int, Int)]
+enumerate array = enumerateAux array [] 0
+
+pad :: Int -> [Int]
+pad i | i <= 0 = []
+pad i          = 0 : pad (i - 1)
+
+multSingleAux :: [Int] -> Int -> [Int]
+multSingleAux []      _   = []
+multSingleAux (h : t) val = (h * val) : multSingleAux t val
+
+multSingle :: (Int, Int) -> [Int] -> [Int]
+multSingle (value, n) array = pad n ++ multSingleAux array value
 
 multP :: Polynomial -> Polynomial -> Polynomial
-multP []        p2        = p2
-multP p1        []        = p1
-multP (h1 : t1) (h2 : t2) = (h1 + h2) : multPAux t1 t2
-
-eq :: Int -> Polynomial -> Int -> Polynomial
-eq value poly n = poly ++ List.map (const value) [0 .. n]
-
-eq1 = eq 1
-eq0 = eq 0
+multP poly1 poly2 = foldl (\acc enu -> addP acc (multSingle enu poly2))
+                          []
+                          enumeratedPoly1
+    where enumeratedPoly1 = enumerate poly1
