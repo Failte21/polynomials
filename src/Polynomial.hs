@@ -4,6 +4,7 @@ module Polynomial
 where
 
 import           Data.List                     as List
+import qualified Debug.Trace
 
 type Polynomial = [Int]
 
@@ -31,10 +32,14 @@ multSingleAux []      _   = []
 multSingleAux (h : t) val = (h * val) : multSingleAux t val
 
 multSingle :: (Int, Int) -> [Int] -> [Int]
-multSingle (value, n) array = pad n ++ multSingleAux array value
+multSingle (value, n) array = padded ++ multSingleAux array value
+    where
+    -- array'  = Debug.Trace.trace ("array: " ++ show array) array
+    -- padded' = Debug.Trace.trace ("padded: " ++ show padded) padded
+          padded = pad n
 
 multP :: Polynomial -> Polynomial -> Polynomial
-multP poly1 poly2 = foldl (\acc enu -> addP acc (multSingle enu poly2))
-                          []
-                          enumeratedPoly1
-    where enumeratedPoly1 = enumerate poly1
+multP poly1 poly2 = reverse standard  where
+    standard =
+        foldl (\acc enu -> addP acc (multSingle enu poly2)) [] enumeratedPoly1
+    enumeratedPoly1 = enumerate poly1

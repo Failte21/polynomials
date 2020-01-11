@@ -12,6 +12,6 @@ spec = do
 
   describe "multP"
     $          context "with [0, 0, 3] [2, 3]"
-    $          it "Should be [0, 0,, 6, 9]"
+    $          it "Should be [0, 0, 6, 9]"
     $          multP [0, 0, 3] [2, 3]
     `shouldBe` [0, 0, 6, 9]
