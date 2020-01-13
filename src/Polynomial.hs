@@ -1,5 +1,6 @@
 module Polynomial
     ( multP
+    , Polynomial
     )
 where
 
