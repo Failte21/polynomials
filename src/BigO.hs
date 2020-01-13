@@ -1,5 +1,6 @@
 module BigO
-  ()
+  ( createLoopMap
+  )
 where
 
 import           Polynomial                     ( Polynomial
@@ -19,7 +20,7 @@ type KeyMap = Map [Relation] Bool
 getLoopKeys
   :: String
   -> (String, Node)
-  -> BaseMap
+  -> Map Relation Bool
   -> BaseMap
   -> [Relation]
   -> [[Relation]]
@@ -48,24 +49,24 @@ getLoopKeys baseNode (nodeName, node) explored baseMap path acc = List.foldl
   updatedPath = nodeName : path
 
 createLoopMap :: BaseMap -> LoopMap
--- createLoopMap baseMap = List.foldl
---   (\(knownLoops, loopMap) (key, node) ->
---     let loopKeys = getLoopKeys (key, node) explored baseMap [] []
---     in  let filteredKeys = List.filter
---               (\loopKey -> Map.member loopKey knownLoops == False)
---               loopKeys
---         in  let updatedLoopsMap = Map.insert key filteredKeys loopMap
---             in  let updatedKnownLoops = List.foldl
---                       (\acc k -> Map.insert k True acc)
---                       knownLoops
---                       filteredKeys
---                 in  (updatedKnownLoops, updatedLoopsMap)
---   )
-
---   (explored, emptyMap)
---   baseTuples where
---   baseTuples = toList baseMap
---   emptyMap   = fromList []
---   keyMap     = fromList []
---   explored   = fromList []
-createLoopMap _ = fromList []
+createLoopMap baseMap = loopMap where
+  (loopMap, _) = List.foldl
+    (\(loopMap, loopIdsMap) (key, node) ->
+      let explored = Map.empty
+      in  let loopKeys = getLoopKeys key (key, node) explored baseMap [] []
+          in  let filteredKeys = List.filter
+                    (\loopKey -> not $ Map.member loopKey loopIdsMap)
+                    loopKeys
+              in  let updatedLoopsMap = Map.insert key filteredKeys loopMap
+                  in  let updatedKnownLoops = List.foldl
+                            (\acc k -> Map.insert k True acc)
+                            loopIdsMap
+                            filteredKeys
+                      in  (updatedLoopsMap, loopIdsMap)
+    )
+    (loopMap, loopIdsMap)
+    nodeList   where
+    acc        = (loopMap, loopIdsMap)
+    loopMap    = Map.empty
+    loopIdsMap = Map.empty
+    nodeList   = Map.toList baseMap
