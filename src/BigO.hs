@@ -8,6 +8,7 @@ import           Polynomial                     ( Polynomial
                                                 )
 import           Data.Map                      as Map
 import           Data.List                     as List
+import           Debug.Trace
 
 type Cost = Polynomial
 type Relation = String
@@ -36,7 +37,7 @@ getLoopKeys baseNode (nodeName, node) explored baseMap path acc = List.foldl
           Nothing            -> acc
           Just nodeToExplore -> getLoopKeys baseNode
                                             (relation, nodeToExplore)
-                                            explored
+                                            updatedExplored
                                             baseMap
                                             sortedPath
                                             acc
@@ -44,9 +45,10 @@ getLoopKeys baseNode (nodeName, node) explored baseMap path acc = List.foldl
   acc
   relations
  where
-  relations   = snd node
-  sortedPath  = sort updatedPath
-  updatedPath = nodeName : path
+  updatedExplored = Map.insert nodeName True explored
+  relations       = snd node
+  sortedPath      = sort updatedPath
+  updatedPath     = nodeName : path
 
 createLoopMap :: BaseMap -> LoopMap
 createLoopMap baseMap = loopMap where
@@ -58,11 +60,11 @@ createLoopMap baseMap = loopMap where
                     (\loopKey -> not $ Map.member loopKey loopIdsMap)
                     loopKeys
               in  let updatedLoopsMap = Map.insert key filteredKeys loopMap
-                  in  let updatedKnownLoops = List.foldl
+                  in  let updatedLoopIdsMap = List.foldl
                             (\acc k -> Map.insert k True acc)
                             loopIdsMap
                             filteredKeys
-                      in  (updatedLoopsMap, loopIdsMap)
+                      in  (updatedLoopsMap, updatedLoopIdsMap)
     )
     (loopMap, loopIdsMap)
     nodeList   where
