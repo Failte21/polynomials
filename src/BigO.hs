@@ -72,3 +72,7 @@ createLoopMap baseMap = loopMap where
     loopMap    = Map.empty
     loopIdsMap = Map.empty
     nodeList   = Map.toList baseMap
+
+
+reduce :: BaseMap -> LoopMap -> Polynomial
+reduce baseMap loopMap = []
