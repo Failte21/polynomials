@@ -1,9 +1,11 @@
 module BigO
   ( createLoopMap
+  , reduce
   )
 where
 
 import           Polynomial                     ( Polynomial
+                                                , addP
                                                 , multP
                                                 )
 import           Data.Map                      as Map
@@ -74,5 +76,23 @@ createLoopMap baseMap = loopMap where
     nodeList   = Map.toList baseMap
 
 
+addRelation :: BaseMap -> Polynomial -> Relation -> Polynomial
+addRelation baseMap acc relation = addP acc cost where
+  cost = case Map.lookup relation baseMap of
+    Nothing        -> []
+    Just (cost, _) -> cost
+
+reduceLoop :: BaseMap -> [Relation] -> Polynomial
+reduceLoop baseMap = List.foldl (addRelation baseMap) []
+
+multLoops :: BaseMap -> Polynomial -> [[Relation]] -> Polynomial
+multLoops baseMap final loops = multP final loopCosts
+ where
+  loopCosts = List.foldl
+    (\acc loop -> let loopCost = reduceLoop baseMap loop in multP acc loopCost)
+    []
+    loops
+
 reduce :: BaseMap -> LoopMap -> Polynomial
-reduce baseMap loopMap = []
+reduce baseMap loopMap = List.foldl (multLoops baseMap) [] loopsList
+  where loopsList = List.map snd (Map.toList loopMap)

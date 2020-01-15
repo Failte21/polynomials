@@ -34,6 +34,8 @@ multSingle (value, n) array = padded ++ multSingleAux array value
     where padded = pad n
 
 multP :: Polynomial -> Polynomial -> Polynomial
+multP poly1 []    = poly1
+multP []    poly2 = poly2
 multP poly1 poly2 = standard  where
     standard =
         foldl (\acc enu -> addP acc (multSingle enu poly2)) [] enumeratedPoly1
