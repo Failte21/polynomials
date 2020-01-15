@@ -1,5 +1,6 @@
 module Polynomial
     ( multP
+    , addP
     , Polynomial
     )
 where
@@ -8,13 +9,10 @@ import           Data.List                     as List
 
 type Polynomial = [Int]
 
-addPAux :: Polynomial -> Polynomial -> Polynomial -> Polynomial
-addPAux poly1     []        acc = acc ++ poly1
-addPAux []        poly2     acc = acc ++ poly2
-addPAux (h1 : t1) (h2 : t2) acc = addPAux t1 t2 acc ++ [h1 + h2]
-
 addP :: Polynomial -> Polynomial -> Polynomial
-addP poly1 poly2 = addPAux poly1 poly2 []
+addP poly1     []        = poly1
+addP []        poly2     = poly2
+addP (h1 : t1) (h2 : t2) = (h1 + h2) : addP t1 t2
 
 enumerateAux :: [Int] -> [(Int, Int)] -> Int -> [(Int, Int)]
 enumerateAux []      acc _ = acc
@@ -36,7 +34,7 @@ multSingle (value, n) array = padded ++ multSingleAux array value
     where padded = pad n
 
 multP :: Polynomial -> Polynomial -> Polynomial
-multP poly1 poly2 = reverse standard  where
+multP poly1 poly2 = standard  where
     standard =
         foldl (\acc enu -> addP acc (multSingle enu poly2)) [] enumeratedPoly1
     enumeratedPoly1 = enumerate poly1
